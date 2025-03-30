@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Modern To-Do List</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>TaskFlow</h1>
+            <div class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Welcome</h3>
+                </div>
+                <nav>
+                    <ul>
+                        <li class="active" data-view="tasks"><i class="fas fa-tasks"></i> Tasks</li>
+                        <li data-view="calendar"><i class="fas fa-calendar-alt"></i> Calendar</li>
+                        <li data-view="categories"><i class="fas fa-tag"></i> Categories</li>
+                        <li data-view="statistics"><i class="fas fa-chart-pie"></i> Statistics</li>
+                    </ul>
+                </nav>
+                <div class="categories-list">
+                    <h3>Categories</h3>
+                    <ul id="categories">
+                        <li data-category="all" class="active">All</li>
+                        <li data-category="work">Work</li>
+                        <li data-category="personal">Personal</li>
+                        <li data-category="shopping">Shopping</li>
+                    </ul>
+                    <button id="add-category-btn" class="btn-small"><i class="fas fa-plus"></i> Add Category</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="view" id="tasks-view">
+                    <div class="view-header">
+                        <h2>My Tasks</h2>
+                        <div class="task-filters">
+                            <select id="task-filter">
+                                <option value="all">All Tasks</option>
+                                <option value="today">Today</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            <button id="add-task-btn" class="btn"><i class="fas fa-plus"></i> Add Task</button>
+                        </div>
+                    </div>
+                    
+                    <div class="tasks-container" id="tasks-list">
+                        <!-- Tasks will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="view hidden" id="calendar-view">
+                    <div class="view-header">
+                        <h2>Calendar</h2>
+                        <div class="calendar-navigation">
+                            <button id="prev-month" class="btn-icon"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="current-month">September 2023</h3>
+                            <button id="next-month" class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-container">
+                        <div class="calendar-weekdays">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+                        <div class="calendar-days" id="calendar-days">
+                            <!-- Calendar days will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view hidden" id="categories-view">
+                    <div class="view-header">
+                        <h2>Categories</h2>
+                        <button id="add-category-btn-main" class="btn"><i class="fas fa-plus"></i> Add Category</button>
+                    </div>
+                    <div class="categories-container" id="categories-list">
+                        <!-- Categories will be added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="view hidden" id="statistics-view">
+                    <div class="view-header">
+                        <h2>Statistics</h2>
+                    </div>
+                    <div class="statistics-container">
+                        <div class="stat-card">
+                            <h3>Total Tasks</h3>
+                            <p id="total-tasks">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Completed</h3>
+                            <p id="completed-tasks">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending</h3>
+                            <p id="pending-tasks">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Overdue</h3>
+                            <p id="overdue-tasks">0</p>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="tasks-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding/editing tasks -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Task</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="task-title">Title</label>
+                        <input type="text" id="task-title" placeholder="Enter task title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Description</label>
+                        <textarea id="task-description" placeholder="Enter task description"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-date">Due Date</label>
+                            <input type="date" id="task-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-time">Due Time</label>
+                            <input type="time" id="task-time">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-category">Category</label>
+                        <select id="task-category">
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="shopping">Shopping</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-priority">Priority</label>
+                        <select id="task-priority">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="task-id">
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-task">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding categories -->
+    <div class="modal" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Category</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="category-form">
+                    <div class="form-group">
+                        <label for="category-name">Category Name</label>
+                        <input type="text" id="category-name" placeholder="Enter category name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category-color">Color</label>
+                        <input type="color" id="category-color" value="#4CAF50">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-category">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
